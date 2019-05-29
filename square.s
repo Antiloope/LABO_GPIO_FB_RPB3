@@ -5,8 +5,8 @@
 // - x5 FB_BASE
 ///////////////////////////
 square:
-  ldr x11, =COORDS
-  ldr x12, =SIZE
+  ldr x11, =SQUARE_COORDS
+  ldr x12, =SQUARE_SIZE
   ldr x13, =COLOR
   mov x6,512
   ldrh w0,[x11,2]

@@ -1,15 +1,15 @@
 .globl app
 ///////////////////////////
-// - COORDS center of the circle
-// - SIZE in the first word the radius
+// - CIRCLE_COORDS center of the circle
+// - CIRCLE_RADIUS in the first word the radius
 // - COLOR color of the circle
 // - x0 - x10
 // Require:
 // - x5 FB_BASE
 ///////////////////////////
 circle:
-  ldr x11, =COORDS
-  ldr x12, =SIZE
+  ldr x11, =CIRCLE_COORDS
+  ldr x12, =CIRCLE_RADIUS
   ldr x13, =COLOR
   ldrh w1,[x11,2]  //Load y coord
   ldrh w0,[x11]    //Load x coord
@@ -57,3 +57,4 @@ circleNextLoop:
   sub x4,x4,1       //j--
   b circleLoop1
 circleExit:
+  br x30

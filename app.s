@@ -83,40 +83,66 @@ app:
 
     // CODE EXAMPLE - Config GPIO1 as OUTPUT--------------------------
 
-    mov x8, GPIO_BASE                       // GPIO Base Address.
-    mov w9, GPIO_FSEL_OUT                   // Load OUTPUT configuration
-    lsl w9, w9, 3                           // GPIO1 (<<3)
-    sturh w9, [x8, GPIO_GPFSEL0]            // Set config at GPFSELx
+    //mov x8, GPIO_BASE                       // GPIO Base Address.
+    //mov w9, GPIO_FSEL_OUT                   // Load OUTPUT configuration
+    //lsl w9, w9, 3                           // GPIO1 (<<3)
+    //sturh w9, [x8, GPIO_GPFSEL0]            // Set config at GPFSELx
 
 	//-----------------------------------------------------------------
 
-
 	// CODE EXAMPLE - Get GPIO2 state ---------------------------------
 
-    mov x8, GPIO_BASE                       // GPIO Base Address.
-		ldrh w9, [x8, GPIO_GPLEV0]              // Get GPIO 0-31 satate
-    and w10, w9, GPIO_2                     // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+    //mov x8, GPIO_BASE                       // GPIO Base Address.
+		//ldrh w9, [x8, GPIO_GPLEV0]              // Get GPIO 0-31 satate
+    //and w10, w9, GPIO_2                     // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
 
 	//-----------------------------------------------------------------
 	mov x5,x0
 
 	//Save memory address in registers
-	ldr x11, =COORDS
-	ldr x12, =SIZE
+	ldr x11, =CIRCLE_COORDS
+	ldr x12, =CIRCLE_RADIUS
 	ldr x13, =COLOR
 
 	////////START////////
 
 mainLoop:
-	b checkLoop
+
+	//mov x15,5
+	//sub sp,sp, #8  // Reserve space for two registers
+	//stur x15,[sp,#0]  // Store Register X30 in stack
+	//mov x15,0
+	//ldur x15,[sp,#0]  // Restore X30 value from stack
+	//add sp,sp, #8  // Restore SP to initial position
+	//sub x15,x15,5
+	//cbnz x15,infLoop
+
+	bl checkLoop
 	b mainLoop
 	b infLoop
 
 checkLoop:
+	mov x29,x30
+
 	mov x8, GPIO_BASE                       // GPIO Base Address.
 	ldrh w9, [x8, GPIO_GPLEV0]              // Get GPIO 0-31 satate
-	and w9, w9, GPIO_2                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	and w10, w9, GPIO_2                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	cbz w10, zero
+	//If not pressed
+	mov w0,0x07E0    // Set color 0x07E0 = GREEN
+	strh w0,[x13]     //Store c
+	mov w0,100
+	strh w0,[x11]     //Store X coord
+	mov w0,100
+	strh w0,[x11,2]   //Store Y coord
+	mov w0,40
+	strh w0,[x12]     //Store width
+	mov w0,512
+	strh w0,[x12,2]   //Store height
+	bl circle
 
+	br x29
+zero:
 	//If pressed
 	mov w0, 0x001F    // Set color 0x001F = BLUE
 	strh w0,[x13]     //Store color
@@ -128,20 +154,9 @@ checkLoop:
 	strh w0,[x12]     //Store width
 	mov w0,512
 	strh w0,[x12,2]   //Store height
-	cbz w9, circle
+	bl circle
 
-	//If not pressed
-	mov w0,0x07E0    // Set color 0x07E0 = GREEN
-	strh w0,[x13]     //Store color
-	mov w0,100
-	strh w0,[x11]     //Store X coord
-	mov w0,100
-	strh w0,[x11,2]   //Store Y coord
-	mov w0,40
-	strh w0,[x12]     //Store width
-	mov w0,512
-	strh w0,[x12,2]   //Store height
-	b circle
+	br x29
 
   // Infinite Loop
 infLoop:

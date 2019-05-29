@@ -92,10 +92,14 @@ FB_POINTER:
 
 	.word 0x00000000 // $0 (End Tag)
 FB_STRUCT_END:
-COORDS: //Center
+CIRCLE_COORDS:
+SQUARE_COORDS:
+LINE_COORDS1:
 		.word 0
 		.word 0
-SIZE: //Radius
+CIRCLE_RADIUS:
+SQUARE_SIZE:
+LINE_COORDS2:
 		.word 0
 		.word 0
 COLOR:
