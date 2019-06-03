@@ -117,18 +117,73 @@ mainLoop:
 	//sub x15,x15,5
 	//cbnz x15,infLoop
 
-	bl checkLoop
+	bl checkInputs
 	b mainLoop
 	b infLoop
 
-checkLoop:
-	mov x29,x30
-
+checkInputs:
+	mov x28,x30
+	//2,4,17,22,10,11
+	//10 func
+	//11 click
 	mov x8, GPIO_BASE                       // GPIO Base Address.
 	ldrh w9, [x8, GPIO_GPLEV0]              // Get GPIO 0-31 satate
+	and w10, w9, GPIO_10                      // Filter GPIO10 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	cbnz w10, mode1
+	b mode0
+
+mode0:
+	and w10, w9, GPIO_11                      // Filter GPIO11 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	cbnz w10, click01
+	b click00
+
+mode1:
+	and w10, w9, GPIO_11                      // Filter GPIO11 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	cbnz w10, click11
+	b click10
+
+click00: //Mode draw, unclicked
 	and w10, w9, GPIO_2                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
-	cbz w10, zero
-	//If not pressed
+	cbnz w10, btn0_00
+	and w10, w9, GPIO_4                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	cbnz w10, btn1_00
+	and w10, w9, GPIO_17                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	cbnz w10, btn2_00
+	and w10, w9, GPIO_22                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	cbnz w10, btn3_00
+	br x28
+click01: //Mode draw, clicked
+	and w10, w9, GPIO_2                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	cbnz w10, btn0_01
+	and w10, w9, GPIO_4                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	cbnz w10, btn1_01
+	and w10, w9, GPIO_17                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	cbnz w10, btn2_01
+	and w10, w9, GPIO_22                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	cbnz w10, btn3_01
+	br x28
+click10: //Mode conf, unclicked
+	and w10, w9, GPIO_2                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	cbnz w10, btn0_10
+	and w10, w9, GPIO_4                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	cbnz w10, btn1_10
+	and w10, w9, GPIO_17                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	cbnz w10, btn2_10
+	and w10, w9, GPIO_22                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	cbnz w10, btn3_10
+	br x28
+click11: //Mode conf,clicked
+	and w10, w9, GPIO_2                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	cbnz w10, btn0_11
+	and w10, w9, GPIO_4                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	cbnz w10, btn1_11
+	and w10, w9, GPIO_17                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	cbnz w10, btn2_11
+	and w10, w9, GPIO_22                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	cbnz w10, btn3_11
+	br x28
+
+btn0_00:
 	mov w0,0x07E0    // Set color 0x07E0 = GREEN
 	strh w0,[x13]     //Store c
 	mov w0,100
@@ -140,10 +195,24 @@ checkLoop:
 	mov w0,512
 	strh w0,[x12,2]   //Store height
 	bl circle
+	br x28
+btn1_00:
+	br x28
+btn2_00:
+	br x28
+btn3_00:
+	br x28
 
-	br x29
-zero:
-	//If pressed
+btn0_01:
+	br x28
+btn1_01:
+	br x28
+btn2_01:
+	br x28
+btn3_01:
+	br x28
+
+btn0_10:
 	mov w0, 0x001F    // Set color 0x001F = BLUE
 	strh w0,[x13]     //Store color
 	mov w0,100
@@ -155,8 +224,31 @@ zero:
 	mov w0,512
 	strh w0,[x12,2]   //Store height
 	bl circle
+	bl wait
+	br x28
+btn1_10:
+	br x28
+btn2_10:
+	br x28
+btn3_10:
+	br x28
 
-	br x29
+btn0_11:
+	br x28
+btn1_11:
+	br x28
+btn2_11:
+	br x28
+btn3_11:
+	br x28
+
+wait:
+	//0.1 seg in theory
+	ldr x0,=700000
+waitLoop:
+	sub x0,x0,1
+	cbnz x0, waitLoop
+	ret
 
   // Infinite Loop
 infLoop:
