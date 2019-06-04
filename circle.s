@@ -8,6 +8,8 @@
 // - x5 FB_BASE
 ///////////////////////////
 circle:
+  sub sp,sp, #16  // Reserve space for two registers
+  stur x30,[sp,#0]  // Store Register X9 in stack
   ldr x11, =CIRCLE_COORDS
   ldr x12, =CIRCLE_RADIUS
   ldr x13, =COLOR
@@ -57,4 +59,6 @@ circleNextLoop:
   sub x4,x4,1       //j--
   b circleLoop1
 circleExit:
+  ldur x30,[sp,#0]  // Restore X15 value from stack
+  add sp,sp, #16  // Restore SP to initial position
   br x30

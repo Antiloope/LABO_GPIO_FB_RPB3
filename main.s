@@ -1,6 +1,10 @@
+	.data
+    	_stack_ptr: .dword _stack_end   // Get the stack pointer value from memmap definition
 	.text
 	.org 0x0000
 
+	ldr	x1, _stack_ptr  // Load stack pointer to X1
+	mov	sp, x1     	// Move stack pointer to the sp register
 	// Setup Frame Buffer
 	.equ SCREEN_X, 512
 	.equ SCREEN_Y, 512
@@ -94,12 +98,10 @@ FB_POINTER:
 FB_STRUCT_END:
 CIRCLE_COORDS:
 SQUARE_COORDS:
-LINE_COORDS1:
 		.word 0
 		.word 0
 CIRCLE_RADIUS:
 SQUARE_SIZE:
-LINE_COORDS2:
 		.word 0
 		.word 0
 COLOR:

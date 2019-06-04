@@ -9,3 +9,4 @@ SECTIONS
     .text : { *(.text*) } > ram
     .bss : { *(.bss*) } > ram
 }
+_stack_end = 0x400000;

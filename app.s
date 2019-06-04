@@ -97,32 +97,38 @@ app:
     //and w10, w9, GPIO_2                     // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
 
 	//-----------------------------------------------------------------
+
+
 	mov x5,x0
 
 	//Save memory address in registers
-	ldr x11, =CIRCLE_COORDS
-	ldr x12, =CIRCLE_RADIUS
+	ldr x11, =SQUARE_COORDS
+	ldr x12, =SQUARE_SIZE
 	ldr x13, =COLOR
 
-	////////START////////
+	mov w0,0x0003    // Set color 0x0003 = dark blue
+	strh w0,[x13]     //Store color
+	mov w0,100
+	strh w0,[x11]     //Store X coord
+	mov w0,100
+	strh w0,[x11,2]   //Store Y coord
+	mov w0,40
+	strh w0,[x12]     //Store width
+	mov w0,50
+	strh w0,[x12,2]   //Store height
+
+	bl circle
 
 mainLoop:
-
-	//mov x15,5
-	//sub sp,sp, #8  // Reserve space for two registers
-	//stur x15,[sp,#0]  // Store Register X30 in stack
-	//mov x15,0
-	//ldur x15,[sp,#0]  // Restore X30 value from stack
-	//add sp,sp, #8  // Restore SP to initial position
-	//sub x15,x15,5
-	//cbnz x15,infLoop
 
 	bl checkInputs
 	b mainLoop
 	b infLoop
 
 checkInputs:
-	mov x28,x30
+	sub sp,sp, #16  // Reserve space for two registers
+	stur x30,[sp,#0]  // Store Register X30 in stack
+
 	//2,4,17,22,10,11
 	//10 func
 	//11 click
@@ -142,7 +148,10 @@ mode1:
 	cbnz w10, click11
 	b click10
 
-click00: //Mode draw, unclicked
+	//////////////////////////////////////////////
+	//////////// Mode draw, unclicked ////////////
+	//////////////////////////////////////////////
+click00:
 	and w10, w9, GPIO_2                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
 	cbnz w10, btn0_00
 	and w10, w9, GPIO_4                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
@@ -151,8 +160,14 @@ click00: //Mode draw, unclicked
 	cbnz w10, btn2_00
 	and w10, w9, GPIO_22                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
 	cbnz w10, btn3_00
-	br x28
-click01: //Mode draw, clicked
+	ldur x30,[sp,#0]  // Restore X15 value from stack
+	add sp,sp, #16  // Restore SP to initial position
+	br x30
+
+	//////////////////////////////////////////////
+	//////////// Mode draw, clicked //////////////
+	//////////////////////////////////////////////
+click01:
 	and w10, w9, GPIO_2                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
 	cbnz w10, btn0_01
 	and w10, w9, GPIO_4                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
@@ -161,8 +176,14 @@ click01: //Mode draw, clicked
 	cbnz w10, btn2_01
 	and w10, w9, GPIO_22                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
 	cbnz w10, btn3_01
-	br x28
-click10: //Mode conf, unclicked
+	ldur x30,[sp,#0]  // Restore X15 value from stack
+	add sp,sp, #16  // Restore SP to initial position
+	br x30
+
+	//////////////////////////////////////////////
+	//////////// Mode conf, unclicked ////////////
+	//////////////////////////////////////////////
+click10:
 	and w10, w9, GPIO_2                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
 	cbnz w10, btn0_10
 	and w10, w9, GPIO_4                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
@@ -171,8 +192,14 @@ click10: //Mode conf, unclicked
 	cbnz w10, btn2_10
 	and w10, w9, GPIO_22                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
 	cbnz w10, btn3_10
-	br x28
-click11: //Mode conf,clicked
+	ldur x30,[sp,#0]  // Restore X15 value from stack
+	add sp,sp, #16  // Restore SP to initial position
+	br x30
+
+	//////////////////////////////////////////////
+	//////////// Mode conf, clicked //////////////
+	//////////////////////////////////////////////
+click11:
 	and w10, w9, GPIO_2                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
 	cbnz w10, btn0_11
 	and w10, w9, GPIO_4                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
@@ -181,75 +208,156 @@ click11: //Mode conf,clicked
 	cbnz w10, btn2_11
 	and w10, w9, GPIO_22                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
 	cbnz w10, btn3_11
-	br x28
+	ldur x30,[sp,#0]  // Restore X15 value from stack
+	add sp,sp, #16  // Restore SP to initial position
+	br x30
 
+	////////////////////////////////////
+	//////////// Move right ////////////
+	////////////////////////////////////
 btn0_00:
-	mov w0,0x07E0    // Set color 0x07E0 = GREEN
-	strh w0,[x13]     //Store c
-	mov w0,100
-	strh w0,[x11]     //Store X coord
-	mov w0,100
-	strh w0,[x11,2]   //Store Y coord
-	mov w0,40
-	strh w0,[x12]     //Store width
-	mov w0,512
-	strh w0,[x12,2]   //Store height
+	ldr x11, =CIRCLE_COORDS
+	ldr x12, =CIRCLE_RADIUS
+
+	ldrh w0,[x11]
+	add w0,w0,2
+
+	ldrh w1,[x12]
+	add w1,w0,w1
+	cmp w1,512
+	b.GE btn0_00_exit
+
+	strh w0,[x11]
 	bl circle
-	br x28
+	bl wait_1
+	btn0_00_exit:
+	ldur x30,[sp,#0]  // Restore X15 value from stack
+	add sp,sp, #16  // Restore SP to initial position
+	br x30
+
 btn1_00:
-	br x28
+	ldur x30,[sp,#0]  // Restore X15 value from stack
+	add sp,sp, #16  // Restore SP to initial position
+	br x30
 btn2_00:
-	br x28
+	ldur x30,[sp,#0]  // Restore X15 value from stack
+add sp,sp, #16  // Restore SP to initial position
+br x30
 btn3_00:
-	br x28
+	ldur x30,[sp,#0]  // Restore X15 value from stack
+add sp,sp, #16  // Restore SP to initial position
+br x30
 
 btn0_01:
-	br x28
+	ldur x30,[sp,#0]  // Restore X15 value from stack
+	add sp,sp, #16  // Restore SP to initial position
+	br x30
+
 btn1_01:
-	br x28
+	ldur x30,[sp,#0]  // Restore X15 value from stack
+add sp,sp, #16  // Restore SP to initial position
+br x30
 btn2_01:
-	br x28
+	ldur x30,[sp,#0]  // Restore X15 value from stack
+add sp,sp, #16  // Restore SP to initial position
+br x30
 btn3_01:
-	br x28
+	ldur x30,[sp,#0]  // Restore X15 value from stack
+add sp,sp, #16  // Restore SP to initial position
+br x30
 
 btn0_10:
-	mov w0, 0x001F    // Set color 0x001F = BLUE
-	strh w0,[x13]     //Store color
-	mov w0,100
-	strh w0,[x11]     //Store X coord
-	mov w0,100
-	strh w0,[x11,2]   //Store Y coord
-	mov w0,40
-	strh w0,[x12]     //Store width
-	mov w0,512
-	strh w0,[x12,2]   //Store height
-	bl circle
-	bl wait
-	br x28
+	ldur x30,[sp,#0]  // Restore X15 value from stack
+add sp,sp, #16  // Restore SP to initial position
+br x30
+
+////////////////////////////////////
+//////////// Color mode ////////////
+////////////////////////////////////
 btn1_10:
-	br x28
+	ldr x13, =COLOR
+	mov w0, 0xC000
+	ldrh w1,[x13]
+	cmp w1,w0
+	b.GE btn1_10_setblack
+	cbz w1, btn1_10_setblue
+	lsl w1,w1,1
+	b btn1_10_exit
+
+	btn1_10_setblack:
+	mov w0,0xC000
+	cmp w1,w0
+	b.EQ btn1_10_setyellow
+	mov w0, 0xF7E0
+	cmp w1,w0
+	b.EQ btn1_10_setwhite
+	mov w1,0x0000
+	b btn1_10_exit
+
+	btn1_10_setyellow:
+	mov w1, 0xF7E0
+	b btn1_10_exit
+
+	btn1_10_setwhite:
+	mov w1, 0xFFFF
+	b btn1_10_exit
+
+	btn1_10_setblue:
+	mov w1, 0x0003
+
+	btn1_10_exit:
+	strh w1,[x13]
+	bl circle
+	bl wait_2
+	ldur x30,[sp,#0]  // Restore X15 value from stack
+	add sp,sp, #16  // Restore SP to initial position
+	br x30
+
+	
 btn2_10:
-	br x28
+	ldur x30,[sp,#0]  // Restore X15 value from stack
+add sp,sp, #16  // Restore SP to initial position
+br x30
 btn3_10:
-	br x28
+	ldur x30,[sp,#0]  // Restore X15 value from stack
+add sp,sp, #16  // Restore SP to initial position
+br x30
 
 btn0_11:
-	br x28
+	ldur x30,[sp,#0]  // Restore X15 value from stack
+add sp,sp, #16  // Restore SP to initial position
+br x30
 btn1_11:
-	br x28
+	ldur x30,[sp,#0]  // Restore X15 value from stack
+add sp,sp, #16  // Restore SP to initial position
+br x30
 btn2_11:
-	br x28
+	ldur x30,[sp,#0]  // Restore X15 value from stack
+add sp,sp, #16  // Restore SP to initial position
+br x30
 btn3_11:
-	br x28
+	ldur x30,[sp,#0]  // Restore X15 value from stack
+add sp,sp, #16  // Restore SP to initial position
+br x30
 
-wait:
-	//0.1 seg in theory
+
+///////////////////////////////
+//////////// Wait  ////////////
+///////////////////////////////
+wait_1:
+	ldr x0,=7000
+	b waitLoop
+wait_2:
+	/////0.1 seg in theory
 	ldr x0,=700000
 waitLoop:
 	sub x0,x0,1
 	cbnz x0, waitLoop
 	ret
 
-  // Infinite Loop
+
+	///////////////////////////////////////
+	//////////// Infinite Loop ////////////
+	///////////////////////////////////////
 infLoop:
 	b infLoop

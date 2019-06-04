@@ -5,6 +5,8 @@
 // - x5 FB_BASE
 ///////////////////////////
 square:
+  sub sp,sp, #16  // Reserve space for two registers
+  stur x30,[sp,#0]  // Store Register X9 in stack
   ldr x11, =SQUARE_COORDS
   ldr x12, =SQUARE_SIZE
   ldr x13, =COLOR
@@ -33,3 +35,6 @@ squareLoop1:
 	add x0,x0,x4
 	sub w1,w1,1	   // Decrement Y counter
 	cbnz w1,squareLoop1	   // if not last row, jump
+  ldur x30,[sp,#0]  // Restore X15 value from stack
+  add sp,sp, #16  // Restore SP to initial position
+  br x30
