@@ -117,7 +117,7 @@ app:
 	mov w0,50
 	strh w0,[x12,2]   //Store height
 
-	bl circle
+	bl square
 
 mainLoop:
 
@@ -299,7 +299,8 @@ btn2_00:
 	ldrh w0,[x11,2]
 	ldrh w1,[x12,2]
 	add w0,w0,2
-	cmp w0,512
+	add w1,w1,w0
+	cmp w1,512
 	b.GE btn2_00_exit
 
 	strh w0,[x11,2]
@@ -424,7 +425,16 @@ btn1_10:
 
 	btn1_10_exit:
 	strh w1,[x13]
+	ldr x10, =ACTUAL_FIGURE
+	ldrh w10,[x10]
+	cbz w10, btn1_10_circle
+	bl square
+	b btn1_10_exit2
+
+	btn1_10_circle:
 	bl circle
+
+	btn1_10_exit2:
 	bl wait_2
 	ldur x30,[sp,#0]  // Restore X15 value from stack
 	add sp,sp, #16  // Restore SP to initial position
