@@ -106,7 +106,7 @@ app:
 	ldr x12, =SQUARE_SIZE
 	ldr x13, =COLOR
 
-	mov w0,0x0003    // Set color 0x0003 = dark blue
+	mov w0,0x0006    // Set color 0x0003 = dark blue
 	strh w0,[x13]     //Store color
 	mov w0,100
 	strh w0,[x11]     //Store X coord
@@ -129,7 +129,7 @@ checkInputs:
 	sub sp,sp, #16  // Reserve space for two registers
 	stur x30,[sp,#0]  // Store Register X30 in stack
 
-	//2,4,17,22,10,11
+	//2,4,3,9,10,11
 	//10 func
 	//11 click
 	mov x8, GPIO_BASE                       // GPIO Base Address.
@@ -156,9 +156,9 @@ click00:
 	cbnz w10, btn0_00
 	and w10, w9, GPIO_4                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
 	cbnz w10, btn1_00
-	and w10, w9, GPIO_17                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	and w10, w9, GPIO_3                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
 	cbnz w10, btn2_00
-	and w10, w9, GPIO_22                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	and w10, w9, GPIO_9                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
 	cbnz w10, btn3_00
 	ldur x30,[sp,#0]  // Restore X15 value from stack
 	add sp,sp, #16  // Restore SP to initial position
@@ -172,9 +172,9 @@ click01:
 	cbnz w10, btn0_01
 	and w10, w9, GPIO_4                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
 	cbnz w10, btn1_01
-	and w10, w9, GPIO_17                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	and w10, w9, GPIO_3                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
 	cbnz w10, btn2_01
-	and w10, w9, GPIO_22                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	and w10, w9, GPIO_9                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
 	cbnz w10, btn3_01
 	ldur x30,[sp,#0]  // Restore X15 value from stack
 	add sp,sp, #16  // Restore SP to initial position
@@ -188,9 +188,9 @@ click10:
 	cbnz w10, btn0_10
 	and w10, w9, GPIO_4                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
 	cbnz w10, btn1_10
-	and w10, w9, GPIO_17                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	and w10, w9, GPIO_3                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
 	cbnz w10, btn2_10
-	and w10, w9, GPIO_22                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	and w10, w9, GPIO_9                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
 	cbnz w10, btn3_10
 	ldur x30,[sp,#0]  // Restore X15 value from stack
 	add sp,sp, #16  // Restore SP to initial position
@@ -204,9 +204,9 @@ click11:
 	cbnz w10, btn0_11
 	and w10, w9, GPIO_4                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
 	cbnz w10, btn1_11
-	and w10, w9, GPIO_17                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	and w10, w9, GPIO_3                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
 	cbnz w10, btn2_11
-	and w10, w9, GPIO_22                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
+	and w10, w9, GPIO_9                      // Filter GPIO2 satate (GPIO2 = GND -> x10='0', else -> x10!='0')
 	cbnz w10, btn3_11
 	ldur x30,[sp,#0]  // Restore X15 value from stack
 	add sp,sp, #16  // Restore SP to initial position
@@ -228,25 +228,142 @@ btn0_00:
 	b.GE btn0_00_exit
 
 	strh w0,[x11]
+
+	ldr x10, =ACTUAL_FIGURE
+	ldrh w10,[x10]
+	cbz w10, btn0_00_circle
+	//square
+	bl square
+	b btn0_00_exit
+
+	btn0_00_circle:
 	bl circle
-	bl wait_1
+
 	btn0_00_exit:
+	bl wait_1
 	ldur x30,[sp,#0]  // Restore X15 value from stack
 	add sp,sp, #16  // Restore SP to initial position
 	br x30
 
+
+	///////////////////////////////////
+	//////////// Move left ////////////
+	///////////////////////////////////
 btn1_00:
+	ldr x10, =ACTUAL_FIGURE
+	ldrh w10,[x10]
+	cbz w10, btn1_00_circle
+	//square
+	ldr x11, =SQUARE_COORDS
+
+	ldrh w0,[x11]
+	sub w0,w0,2
+	cmp w0,0
+	b.LE btn1_00_exit
+
+	strh w0,[x11]
+	bl square
+	b btn1_00_exit
+
+	btn1_00_circle:
+	ldr x11, =CIRCLE_COORDS
+	ldr x12, =CIRCLE_RADIUS
+
+	ldrh w0,[x11]
+	ldrh w1,[x12]
+	sub w0,w0,2
+	sub w1,w0,w1
+	cmp w1,0
+	b.LE btn1_00_exit
+
+	strh w0,[x11]
+	bl circle
+
+	btn1_00_exit:
+	bl wait_1
 	ldur x30,[sp,#0]  // Restore X15 value from stack
 	add sp,sp, #16  // Restore SP to initial position
 	br x30
+
+	///////////////////////////////////
+	//////////// Move Down ////////////
+	///////////////////////////////////
 btn2_00:
+	ldr x10, =ACTUAL_FIGURE
+	ldrh w10,[x10]
+	cbz w10, btn2_00_circle
+	//square
+	ldr x11, =SQUARE_COORDS
+	ldr x12, =SQUARE_SIZE
+
+	ldrh w0,[x11,2]
+	ldrh w1,[x12,2]
+	add w0,w0,2
+	cmp w0,512
+	b.GE btn2_00_exit
+
+	strh w0,[x11,2]
+	bl square
+	b btn2_00_exit
+
+	btn2_00_circle:
+	ldr x11, =CIRCLE_COORDS
+	ldr x12, =CIRCLE_RADIUS
+
+	ldrh w0,[x11,2]
+	ldrh w1,[x12]
+	add w0,w0,2
+	add w1,w0,w1
+	cmp w1,512
+	b.GE btn2_00_exit
+
+	strh w0,[x11,2]
+	bl circle
+
+	btn2_00_exit:
+	bl wait_1
 	ldur x30,[sp,#0]  // Restore X15 value from stack
-add sp,sp, #16  // Restore SP to initial position
-br x30
+	add sp,sp, #16  // Restore SP to initial position
+	br x30
+
+	/////////////////////////////////
+	//////////// Move Up ////////////
+	/////////////////////////////////
 btn3_00:
+	ldr x10, =ACTUAL_FIGURE
+	ldrh w10,[x10]
+	cbz w10, btn3_00_circle
+	//square
+	ldr x11, =SQUARE_COORDS
+
+	ldrh w0,[x11,2]
+	sub w0,w0,2
+	cmp w0,0
+	b.LE btn3_00_exit
+
+	strh w0,[x11,2]
+	bl square
+	b btn3_00_exit
+
+	btn3_00_circle:
+	ldr x11, =CIRCLE_COORDS
+	ldr x12, =CIRCLE_RADIUS
+
+	ldrh w0,[x11,2]
+	ldrh w1,[x12]
+	sub w0,w0,2
+	sub w1,w0,w1
+	cmp w1,0
+	b.LE btn3_00_exit
+
+	strh w0,[x11,2]
+	bl circle
+
+	btn3_00_exit:
+	bl wait_1
 	ldur x30,[sp,#0]  // Restore X15 value from stack
-add sp,sp, #16  // Restore SP to initial position
-br x30
+	add sp,sp, #16  // Restore SP to initial position
+	br x30
 
 btn0_01:
 	ldur x30,[sp,#0]  // Restore X15 value from stack
@@ -313,7 +430,7 @@ btn1_10:
 	add sp,sp, #16  // Restore SP to initial position
 	br x30
 
-	
+
 btn2_10:
 	ldur x30,[sp,#0]  // Restore X15 value from stack
 add sp,sp, #16  // Restore SP to initial position

@@ -106,3 +106,5 @@ SQUARE_SIZE:
 		.word 0
 COLOR:
 		.word 0
+ACTUAL_FIGURE:
+		.word 0

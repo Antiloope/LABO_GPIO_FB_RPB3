@@ -10,6 +10,11 @@
 circle:
   sub sp,sp, #16  // Reserve space for two registers
   stur x30,[sp,#0]  // Store Register X9 in stack
+
+  ldr x10, =ACTUAL_FIGURE
+  mov w0,0                  //Set actual figure to circle
+  sturh w0,[x10]  
+
   ldr x11, =CIRCLE_COORDS
   ldr x12, =CIRCLE_RADIUS
   ldr x13, =COLOR
