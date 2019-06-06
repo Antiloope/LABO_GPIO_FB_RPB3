@@ -106,13 +106,13 @@ app:
 	ldr x12, =SQUARE_SIZE
 	ldr x13, =COLOR
 
-	mov w0,0x0006    // Set color 0x0003 = dark blue
+	mov w0,0xFFFF    // Set color 0xFFFF = WHITE
 	strh w0,[x13]     //Store color
-	mov w0,100
+	mov w0,256
 	strh w0,[x11]     //Store X coord
-	mov w0,100
+	mov w0,256
 	strh w0,[x11,2]   //Store Y coord
-	mov w0,40
+	mov w0,50
 	strh w0,[x12]     //Store width
 	mov w0,50
 	strh w0,[x12,2]   //Store height
@@ -384,10 +384,54 @@ btn3_01:
 add sp,sp, #16  // Restore SP to initial position
 br x30
 
+////////////////////////////////////
+//////////// Shape mode ////////////
+////////////////////////////////////
 btn0_10:
+	ldr x10, =ACTUAL_FIGURE
+	ldrh w10,[x10]
+	cbz w10, btn0_10_circle
+	//square
+	ldr x11, =SQUARE_COORDS
+	ldr x12, =SQUARE_SIZE
+
+	ldrh w0,[x12]
+	lsr w0,w0,1
+	sturh w0,[x12]
+
+	ldrh w1,[x11]
+	add w1,w1,w0
+	sturh w1,[x11]
+
+	ldrh w1,[x11,2]
+	add w1,w1,w0
+	sturh w1,[x11,2]
+
+	bl circle
+	b btn0_10_exit
+
+	btn0_10_circle:
+	ldr x11, =CIRCLE_COORDS
+	ldr x12, =CIRCLE_RADIUS
+
+	ldrh w0,[x12]
+	lsl w1,w0,1
+	sturh w1,[x12]
+
+	ldrh w1,[x11]
+	sub w1,w1,w0
+	sturh w1,[x11]
+
+	ldrh w1,[x11,2]
+	sub w1,w1,w0
+	sturh w1,[x11,2]
+	bl square
+
+	btn0_10_exit:
+	bl wait_1
 	ldur x30,[sp,#0]  // Restore X15 value from stack
-add sp,sp, #16  // Restore SP to initial position
-br x30
+	add sp,sp, #16  // Restore SP to initial position
+	br x30
 
 ////////////////////////////////////
 //////////// Color mode ////////////
@@ -440,11 +484,17 @@ btn1_10:
 	add sp,sp, #16  // Restore SP to initial position
 	br x30
 
-
+	/////////////////////////////////
+	//////////// Size Up ////////////
+	/////////////////////////////////
 btn2_10:
 	ldur x30,[sp,#0]  // Restore X15 value from stack
 add sp,sp, #16  // Restore SP to initial position
 br x30
+
+	///////////////////////////////////
+	//////////// Size Down ////////////
+	///////////////////////////////////
 btn3_10:
 	ldur x30,[sp,#0]  // Restore X15 value from stack
 add sp,sp, #16  // Restore SP to initial position
