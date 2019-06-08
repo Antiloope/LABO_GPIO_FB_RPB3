@@ -529,6 +529,7 @@ btn2_10:
 	sturh w3,[x12,2]
 
 	bl square
+	b btn2_10_exit
 
 	btn2_10_circle:
 	ldr x11, =CIRCLE_COORDS
@@ -568,6 +569,49 @@ btn2_10:
 	//////////// Size Down ////////////
 	///////////////////////////////////
 btn3_10:
+	ldr x10, =ACTUAL_FIGURE
+	ldrh w10,[x10]
+	cbz w10, btn3_10_circle
+	//square
+	ldr x11, =SQUARE_COORDS
+	ldr x12, =SQUARE_SIZE
+
+	ldrh w0,[x11] 			//load x
+	ldrh w1,[x11,2]			//load y
+	ldrh w2,[x12]				//load size x
+	ldrh w3,[x12,2]			//load size y
+
+	subs w2,w2,2
+	b.MI btn3_10_exit
+	subs w3,w3,2
+	b.MI btn3_10_exit
+
+	add w0,w0,1
+	add w1,w1,1
+
+	sturh w0,[x11]
+	sturh w1,[x11,2]
+	sturh w2,[x12]
+	sturh w3,[x12,2]
+
+	bl square
+	b btn3_10_exit
+
+	btn3_10_circle:
+	ldr x12, =CIRCLE_RADIUS
+
+	ldrh w0,[x12]
+
+	sub w0,w0,1
+	cbz w0,btn3_10_exit
+
+	sturh w0,[x12]
+	sturh w0,[x12,2]
+
+	bl circle
+
+	btn3_10_exit:
+	bl wait_2
 	ldur x30,[sp,#0]  // Restore X15 value from stack
 	add sp,sp, #16  // Restore SP to initial position
 	br x30
