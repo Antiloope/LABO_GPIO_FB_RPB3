@@ -398,6 +398,7 @@ btn0_10:
 	ldrh w0,[x12]
 	lsr w0,w0,1
 	sturh w0,[x12]
+	sturh w0,[x12,2]
 
 	ldrh w1,[x11]
 	add w1,w1,w0
@@ -417,6 +418,7 @@ btn0_10:
 	ldrh w0,[x12]
 	lsl w1,w0,1
 	sturh w1,[x12]
+	sturh w1,[x12,2]
 
 	ldrh w1,[x11]
 	sub w1,w1,w0
@@ -428,7 +430,7 @@ btn0_10:
 	bl square
 
 	btn0_10_exit:
-	bl wait_1
+	bl wait_2
 	ldur x30,[sp,#0]  // Restore X15 value from stack
 	add sp,sp, #16  // Restore SP to initial position
 	br x30
@@ -488,17 +490,87 @@ btn1_10:
 	//////////// Size Up ////////////
 	/////////////////////////////////
 btn2_10:
+	ldr x10, =ACTUAL_FIGURE
+	ldrh w10,[x10]
+	cbz w10, btn2_10_circle
+	//square
+	ldr x11, =SQUARE_COORDS
+	ldr x12, =SQUARE_SIZE
+
+	ldrh w0,[x11] 			//load x
+	ldrh w1,[x11,2]			//load y
+	ldrh w2,[x12]				//load size x
+	ldrh w3,[x12,2]			//load size y
+
+	add w2,w2,w0
+	add w3,w3,w1
+
+	sub w0,w0,1
+	sub w1,w1,1
+	add w2,w2,1
+	add w3,w3,1
+
+	cmp w0,0
+	b.LT btn2_10_exit
+	cmp w2,512
+	b.GT btn2_10_exit
+	cmp w1,0
+	b.LT btn2_10_exit
+	cmp w3,512
+	b.GT btn2_10_exit
+
+	sturh w0,[x11]
+	sturh w1,[x11,2]
+	sub w2,w2,w0
+	add w2,w2,1
+	sub w3,w3,w1
+	add w3,w3,1
+	sturh w2,[x12]
+	sturh w3,[x12,2]
+
+	bl square
+
+	btn2_10_circle:
+	ldr x11, =CIRCLE_COORDS
+	ldr x12, =CIRCLE_RADIUS
+
+	ldrh w0,[x11]
+	ldrh w1,[x11,2]
+	ldrh w2,[x12]
+
+	add w2,w2,1
+	add w3,w0,w2
+	add w4,w1,w2
+	sub w0,w0,w2
+	sub w1,w1,w2
+
+	cmp w0,0
+	b.LT btn2_10_exit
+	cmp w3,512
+	b.GT btn2_10_exit
+	cmp w1,0
+	b.LT btn2_10_exit
+	cmp w4,512
+	b.GT btn2_10_exit
+
+	sturh w2,[x12]
+	sturh w2,[x12,2]
+
+	bl circle
+
+	btn2_10_exit:
+	bl wait_2
 	ldur x30,[sp,#0]  // Restore X15 value from stack
-add sp,sp, #16  // Restore SP to initial position
-br x30
+	add sp,sp, #16  // Restore SP to initial position
+	br x30
 
 	///////////////////////////////////
 	//////////// Size Down ////////////
 	///////////////////////////////////
 btn3_10:
 	ldur x30,[sp,#0]  // Restore X15 value from stack
-add sp,sp, #16  // Restore SP to initial position
-br x30
+	add sp,sp, #16  // Restore SP to initial position
+	br x30
 
 btn0_11:
 	ldur x30,[sp,#0]  // Restore X15 value from stack
